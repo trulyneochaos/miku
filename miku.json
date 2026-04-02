@@ -1,0 +1,16 @@
+{
+    "faction": "miku",
+    "contact": "",
+    "templates": [
+        {
+            "name": "mini_miku",
+             "sources": [
+                "https://files.catbox.moe/8ldkmm.png"
+            ],
+            "x": 97,
+            "y": 417
+        }
+    ],
+    "whitelist": [],
+    "blacklist": []
+}
