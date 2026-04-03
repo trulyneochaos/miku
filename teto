@@ -1,0 +1,16 @@
+{
+    "faction": "miku",
+    "contact": "",
+    "templates": [
+        {
+            "name": "mini_teto",
+             "sources": [
+                "https://files.catbox.moe/rlleuy.png"
+            ],
+            "x": 82,
+            "y": 392
+        }
+    ],
+    "whitelist": [],
+    "blacklist": []
+}
