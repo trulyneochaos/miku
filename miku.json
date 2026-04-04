@@ -1,16 +1,32 @@
 {
-    "faction": "miku",
-    "contact": "",
-    "templates": [
-        {
-            "name": "mini_miku",
-             "sources": [
-                "https://files.catbox.moe/93q6zy.png"
-            ],
-            "x": 97,
-            "y": 416
-        }
-    ],
-    "whitelist": [],
-    "blacklist": []
+  "faction": "miku",
+  "contact": "",
+  "templates": [
+    {
+      "name": "mini_miku",
+      "sources": [
+        "https://files.catbox.moe/93q6zy.png"
+      ],
+      "x": 97,
+      "y": 416
+    },
+    {
+      "name": "mini_teto",
+      "sources": [
+        "https://files.catbox.moe/0wp6y6.png"
+      ],
+      "x": 80,
+      "y": 394
+    },
+    {
+      "name": "mini_neru",
+      "sources": [
+        "https://files.catbox.moe/p9m93p.png"
+      ],
+      "x": 106,
+      "y": 434
+    }
+  ],
+  "whitelist": [],
+  "blacklist": []
 }
