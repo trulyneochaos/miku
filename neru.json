@@ -1,1 +1,16 @@
-
+{
+    "faction": "miku",
+    "contact": "",
+    "templates": [
+        {
+            "name": "mini_neru",
+             "sources": [
+                "https://files.catbox.moe/32tcvm.png"
+            ],
+            "x": 103,
+            "y": 405
+        }
+    ],
+    "whitelist": [],
+    "blacklist": []
+}
