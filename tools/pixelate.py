@@ -1,7 +1,8 @@
 import sys, numpy as np
 from PIL import Image, ImageFilter
 from collections import deque
-src, H, K, out = sys.argv[1], int(sys.argv[2]), int(sys.argv[3]), sys.argv[4]
+# size: target height, or wN for a target width of N
+src, size, K, out = sys.argv[1], sys.argv[2], int(sys.argv[3]), sys.argv[4]
 im = Image.open(src).convert('RGB')
 im = im.filter(ImageFilter.MedianFilter(3))
 a = np.asarray(im).astype(int); h, w, _ = a.shape
@@ -18,7 +19,9 @@ for i,z in enumerate(sz,1):
     if z > 150: bg[lbl==i] = True
 ys,xs = np.where(~bg); y0,y1,x0,x1 = ys.min(),ys.max()+1,xs.min(),xs.max()+1
 a = a[y0:y1,x0:x1]; fgm = ~bg[y0:y1,x0:x1]; h,w = fgm.shape
-W = round(w*H/h)
+if size.startswith('w'): W = int(size[1:]); H = round(h*W/w)
+else: H = int(size); W = round(w*H/h)
+print('source crop', w, h)
 # palette by k-means on full-res fg pixels
 px = a[fgm].astype(float); rng = np.random.default_rng(1)
 samp = px[rng.choice(len(px), min(20000,len(px)), replace=False)]
@@ -61,7 +64,7 @@ for p in edge: lab[p] = dark
 o = np.zeros((H,W,4),np.uint8); m = lab>=0
 o[m,:3] = C[lab[m]]; o[m,3]=255
 Image.fromarray(o,'RGBA').save(out)
-s = max(1, 1024//H)
+s = max(2, 1024//H)
 bgc = Image.new('RGBA',(W*s,H*s),(255,255,255,255))
 bgc.alpha_composite(Image.fromarray(o,'RGBA').resize((W*s,H*s),Image.NEAREST))
 bgc.convert('RGB').save(out.replace('.png','_preview.png'))
