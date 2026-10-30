@@ -50,7 +50,7 @@ def outside(px, w, h):
     return seen
 
 
-def smooth_staircase(im, radius):
+def smooth_staircase(im, radius, region=None):
     w, h = im.size
     px = im.load()
     mask = im.getchannel("A").point(lambda a: 255 if a else 0)
@@ -60,6 +60,8 @@ def smooth_staircase(im, radius):
     changes = []
     for y in range(h):
         for x in range(w):
+            if region is not None and (x, y) not in region:
+                continue
             on = smooth[x, y] >= 128
             nb = [(dx, dy) for dx, dy in N4
                   if solid(px, w, h, x + dx, y + dy)]
@@ -77,11 +79,12 @@ def smooth_staircase(im, radius):
     return removed, added
 
 
-def repair_outline(im):
+def repair_outline(im, region=None):
     w, h = im.size
     px = im.load()
     todo = [(x, y) for y in range(h) for x in range(w)
-            if is_edge(px, w, h, x, y) and px[x, y] != OUTLINE]
+            if is_edge(px, w, h, x, y) and px[x, y] != OUTLINE
+            and (region is None or (x, y) in region)]
     for x, y in todo:
         px[x, y] = OUTLINE
     return len(todo)
