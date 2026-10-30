@@ -4,6 +4,9 @@ from collections import deque
 # size: target height, wN for a target width of N, or 'native' to keep the
 # source canvas 1:1 (background made transparent, no crop or resize)
 # optional 5th arg: enclosed white areas larger than this many pixels become background (default 150)
+# --keep-edges: leave silhouette pixels as in the source (no outline, no edge cleanup)
+keep_edges = '--keep-edges' in sys.argv
+if keep_edges: sys.argv.remove('--keep-edges')
 src, size, K, out = sys.argv[1], sys.argv[2], int(sys.argv[3]), sys.argv[4]
 hole = int(sys.argv[5]) if len(sys.argv) > 5 else 150
 im = Image.open(src).convert('RGB')
@@ -52,6 +55,7 @@ for _ in range(2):
     for y in range(H):
         for x in range(W):
             if lab[y,x] < 0: continue
+            if keep_edges and (len(nb4(y,x))<4 or any(lab[p]<0 for p in nb4(y,x))): continue
             if lab[y,x] not in [lab[p] for p in nb4(y,x)]:
                 nb8 = [lab[yy,xx] for yy in (y-1,y,y+1) for xx in (x-1,x,x+1) if 0<=yy<H and 0<=xx<W and (yy,xx)!=(y,x) and lab[yy,xx]>=0]
                 if nb8:
@@ -60,12 +64,13 @@ for _ in range(2):
     lab = new
 for y in range(H):
     for x in range(W):
-        if lab[y,x]>=0 and all(lab[p]<0 for p in nb4(y,x)): lab[y,x]=-1
+        if not keep_edges and lab[y,x]>=0 and all(lab[p]<0 for p in nb4(y,x)): lab[y,x]=-1
 C = C.round().astype(np.uint8)
 dark = int(np.argmin(C.astype(int).sum(1)))
 # outline: silhouette edge pixels -> darkest colour
 edge = [(y,x) for y in range(H) for x in range(W) if lab[y,x]>=0 and (len(nb4(y,x))<4 or any(lab[p]<0 for p in nb4(y,x)))]
-for p in edge: lab[p] = dark
+if not keep_edges:
+    for p in edge: lab[p] = dark
 o = np.zeros((H,W,4),np.uint8); m = lab>=0
 o[m,:3] = C[lab[m]]; o[m,3]=255
 Image.fromarray(o,'RGBA').save(out)
