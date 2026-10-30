@@ -1,10 +1,13 @@
 import sys, numpy as np
 from PIL import Image, ImageFilter
 from collections import deque
-# size: target height, or wN for a target width of N
+# size: target height, wN for a target width of N, or 'native' to keep the
+# source canvas 1:1 (background made transparent, no crop or resize)
+# optional 5th arg: enclosed white areas larger than this many pixels become background (default 150)
 src, size, K, out = sys.argv[1], sys.argv[2], int(sys.argv[3]), sys.argv[4]
+hole = int(sys.argv[5]) if len(sys.argv) > 5 else 150
 im = Image.open(src).convert('RGB')
-im = im.filter(ImageFilter.MedianFilter(3))
+if size != 'native': im = im.filter(ImageFilter.MedianFilter(3))
 a = np.asarray(im).astype(int); h, w, _ = a.shape
 white = (a.min(2) > 222) & (a.max(2)-a.min(2) < 28)
 bg = np.zeros((h,w),bool); q = deque([(y,x) for y in range(h) for x in (0,w-1)] + [(y,x) for x in range(w) for y in (0,h-1)])
@@ -16,10 +19,12 @@ from scipy import ndimage
 lbl,n = ndimage.label(white & ~bg)
 sz = ndimage.sum(np.ones_like(lbl), lbl, range(1,n+1))
 for i,z in enumerate(sz,1):
-    if z > 150: bg[lbl==i] = True
+    if z > hole: bg[lbl==i] = True
 ys,xs = np.where(~bg); y0,y1,x0,x1 = ys.min(),ys.max()+1,xs.min(),xs.max()+1
+if size == 'native': y0,y1,x0,x1 = 0,h,0,w
 a = a[y0:y1,x0:x1]; fgm = ~bg[y0:y1,x0:x1]; h,w = fgm.shape
-if size.startswith('w'): W = int(size[1:]); H = round(h*W/w)
+if size == 'native': W, H = w, h
+elif size.startswith('w'): W = int(size[1:]); H = round(h*W/w)
 else: H = int(size); W = round(w*H/h)
 print('source crop', w, h)
 # palette by k-means on full-res fg pixels
